@@ -125,7 +125,163 @@ def solve(init_state, init_location, method):
         ...
 
     elif method == 'BiBFS':
-        ...
+        cost_limit = 1
+        nodes = 0
+        moves = list()
+        frontier_start = OrderedDict()
+        frontier_goal = OrderedDict()
+        solved = solved_state()
+
+        print(init_state)
+        print("Bi-BFS")
+
+        start = Node()
+        start.cube = init_state
+        frontier_start[hash(start.cube.tobytes())] = start
+        goal = Node()
+        goal.cube = solved
+        frontier_goal[hash(goal.cube.tobytes())] = goal
+        while len(frontier_start) != 0 and len(frontier_goal) != 0:
+            # Forward search from start
+            key_start, curr_start = frontier_start.popitem(last=False)
+
+        
+            if hash(curr_start.cube.tobytes()) in frontier_goal:
+                # The two searches meet
+                curr_goal = frontier_goal[hash(curr_start.cube.tobytes())]
+                print("Meet in the middle")
+                # Retrieve moves from the initial state to the meeting point
+                backing = frontier_goal[hash(curr_start.cube.tobytes())]
+                front = curr_start
+                moves_start = []
+                while front.parent is not None:
+                    print(front.cube)
+                    moves_start.append(front.move)
+                    front = front.parent
+                    print("move_1 start",moves_start)
+                    print("move_1 parent",front.cube)
+
+                
+
+                moves_start.reverse()
+                # print("move_1 start",moves_start)
+
+                # Retrieve moves from the meeting point to the goal state
+                moves_goal = []
+                while backing.parent is not None:
+                    print(backing.cube)
+                    if(backing.move >6):
+                        moves_goal.append(backing.move-6)
+                    else:
+                        moves_goal.append(backing.move+6)
+                    backing = backing.parent
+                    # print("parent cube when backing",backing.cube,backing.move)
+                    print("move_2 start",moves_goal)
+                    print("move_2 parent",backing.cube)
+                    
+
+                # moves_goal.reverse()
+                # print("move_2 start",moves_goal)
+
+                # check
+                
+                
+                # Combine the two series of moves
+                # moves_goal.reverse()
+                moves = moves_start + moves_goal
+                # moves.reverse()
+
+                print("test_begin",start.cube)
+                test_start=start.cube
+                for i in range(4):
+                    second=Node()
+                    print(moves[i])
+                    second.cube = next_state(test_start, moves[i])
+                    print("test",second.cube)
+                    test_start=second.cube
+
+                
+                return moves
+                
+                # Further processing if needed
+                break
+            if curr_start.cost + 1 <= cost_limit:
+                child_cost = curr_start.cost + 1
+                for i in range(12):
+                    nodes += 1
+                    new_start = Node()
+                    new_start.cube = next_state(curr_start.cube, i + 1)
+                    new_start.cost = child_cost
+                    new_start.parent = curr_start
+                    new_start.move = i + 1
+                    frontier_start[hash(new_start.cube.tobytes())] = new_start
+                # print("start toward goal")
+
+            # Backward search from goal
+            key_goal, curr_goal = frontier_goal.popitem(last=False)
+
+            if hash(curr_goal.cube.tobytes()) in frontier_start:
+                # The two searches meet
+                curr_start = frontier_start[hash(curr_goal.cube.tobytes())]
+                print("Meet in the middle_2")
+                # Further processing if needed
+                # backing = frontier_start[hash(curr_goal.cube.tobytes())]
+                # front = curr_goal
+                front = frontier_start[hash(curr_goal.cube.tobytes())]
+                backing = curr_goal
+                moves_start = []
+                while front.parent is not None:
+                    print(curr_start.cube)
+                    moves_start.append(front.move)
+                    front = front.parent
+                    print("move_1 start",moves_start)
+                # print(curr_start.cube)
+
+                moves_start.reverse()
+                # print("move_1 start",moves_start)
+
+                # Retrieve moves from the meeting point to the goal state
+                moves_goal = []
+                while backing.parent is not None:
+                    # print(backing.cube)
+                    print("move_2 start",backing.move)
+
+                    if(backing.move >6):
+                        moves_goal.append(backing.move-6)
+                    else:
+                        moves_goal.append(backing.move+6)
+                    # moves_goal.append(backing.move)
+                    backing = backing.parent
+                    # print("parent cube when backing",backing.cube,backing.move)
+                    print("move_2 start",moves_goal)
+                # moves_goal.reverse()
+                # print("move_2 start",moves_goal)
+
+                    
+
+                # Combine the two series of moves
+                # moves_goal.reverse()
+                moves = moves_start + moves_goal
+                # moves.reverse()
+                
+                return moves
+
+            if curr_goal.cost + 1 <= cost_limit:
+                child_cost = curr_goal.cost + 1
+                for i in range(12):
+                    nodes += 1
+                    new_goal = Node()
+                    new_goal.cube = next_state(curr_goal.cube, i + 1)
+                    new_goal.cost = child_cost
+                    new_goal.parent = curr_goal
+                    new_goal.move = i + 1
+                    frontier_goal[hash(new_goal.cube.tobytes())] = new_goal
+                # print("goal toward start")
+
+            cost_limit += 1
+
+
+        return 0
     
     else:
         return []
